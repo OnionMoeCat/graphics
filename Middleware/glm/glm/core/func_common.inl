@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////////////
+ï»¿///////////////////////////////////////////////////////////////////////////////////
 /// OpenGL Mathematics (glm.g-truc.net)
 ///
 /// Copyright (c) 2005 - 2012 G-Truc Creation (www.g-truc.net)
@@ -277,7 +277,7 @@ namespace detail
 	//// Only valid if (INT_MIN <= x-y <= INT_MAX)
 	//// min(x,y)
 	//r = y + ((x - y) & ((x - y) >> (sizeof(int) *
-	//CHAR_BIT – 1)));
+	//CHAR_BIT ?1)));
 	//// max(x,y)
 	//r = x - ((x - y) & ((x - y) >> (sizeof(int) *
 	//CHAR_BIT - 1)));
