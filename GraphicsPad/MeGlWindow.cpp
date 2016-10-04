@@ -175,6 +175,20 @@ void MeGlWindow::paintGL()
 	GLint lightPositionUniformLocation = glGetUniformLocation(programID, "lightPositionWorld");
 	glUniform3fv(lightPositionUniformLocation, 1, &lightPositionWorld[0]);
 
+	float r = 10.0f;
+
+	GLint k0UniformLocation = glGetUniformLocation(programID, "k0");
+	float k0 = 1.0f;
+	glUniform1f(k0UniformLocation, k0);
+
+	GLint k1UniformLocation = glGetUniformLocation(programID, "k1");
+	float k1 = 2 / r;
+	glUniform1f(k1UniformLocation, k1);
+
+	GLint k2UniformLocation = glGetUniformLocation(programID, "k2");
+	float k2 = 1 / r / r;
+	glUniform1f(k2UniformLocation, k2);
+
 	GLint modelToWorldMatrixUniformLocation =
 		glGetUniformLocation(programID, "modelToWorldMatrix");
 	// Cube translated
