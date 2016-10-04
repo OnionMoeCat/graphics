@@ -149,6 +149,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Mainer.cpp" />
     <ClCompile Include="MeGlWindow.cpp" />
+    <ClCompile Include="MeGlWindow_moc.cpp" />
     <ClCompile Include="Primitives\ShapeGenerator.cpp" />
   </ItemGroup>
   <ItemGroup>

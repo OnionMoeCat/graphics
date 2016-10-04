@@ -41,6 +41,9 @@ GLuint sphereIndexByteOffset;
 GLuint teapotIndexByteOffset;
 
 glm::vec3 lightPositionWorld(0.0f, 5.0f, 0.0f);
+float torusRotation = 0.0f;
+float sphereRotation = 0.0f;
+float teapotRotation = 0.0f;
 
 void MeGlWindow::sendDataToOpenGL()
 {
@@ -213,7 +216,7 @@ void MeGlWindow::paintGL()
 
 	// Torus
 	glBindVertexArray(torusVertexArrayObjectID);
-	mat4 torusModelToWorldMatrix = glm::translate(vec3(-1.5f, 2.0f, 1.5f));
+	mat4 torusModelToWorldMatrix = glm::translate(vec3(-1.5f, 2.0f, 1.5f)) * glm::rotate(torusRotation, 0.0f, 1.0f, 0.0f) * glm::rotate(90.0f, 1.0f, 0.0f, 0.0f);
 	modelToProjectionMatrix = worldToProjectionMatrix * torusModelToWorldMatrix;
 	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
 	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
@@ -222,7 +225,7 @@ void MeGlWindow::paintGL()
 
 	// Sphere
 	glBindVertexArray(sphereVertexArrayObjectID);
-	mat4 sphereModelToWorldMatrix = glm::translate(vec3(0.5f, 2.0f, -0.5f));
+	mat4 sphereModelToWorldMatrix = glm::translate(vec3(0.5f, 2.0f, -0.5f)) * glm::rotate(sphereRotation, 0.0f, 1.0f, 0.0f);
 	modelToProjectionMatrix = worldToProjectionMatrix * sphereModelToWorldMatrix;
 	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
 	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
@@ -231,7 +234,7 @@ void MeGlWindow::paintGL()
 
 	// Teapot
 	glBindVertexArray(teapotVertexArrayObjectID);
-	mat4 teapotModelToWorldMatrix = glm::translate(vec3(4.5f, 2.0f, -4.5f));
+	mat4 teapotModelToWorldMatrix = glm::translate(vec3(4.5f, 2.0f, -4.5f)) * glm::rotate(teapotRotation, 0.0f, 1.0f, 0.0f);
 	modelToProjectionMatrix = worldToProjectionMatrix * teapotModelToWorldMatrix;
 	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
 	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
@@ -381,9 +384,25 @@ void MeGlWindow::initializeGL()
 	fullTransformationUniformLocation = glGetUniformLocation(programID, "modelToProjectionMatrix");
 }
 
+MeGlWindow::MeGlWindow() 
+{
+	qTimer = new QTimer(this);
+	connect(qTimer, SIGNAL(timeout()), this, SLOT(update()));
+	qTimer->start(0);
+}
+
 MeGlWindow::~MeGlWindow()
 {
+	delete qTimer;
 	glDeleteBuffers(1, &theBufferID);
 	glUseProgram(0);
 	glDeleteProgram(programID);
+}
+
+void MeGlWindow::update() {
+	const float ROTATIONSPEED = 0.1f;
+	torusRotation += ROTATIONSPEED;
+	sphereRotation += ROTATIONSPEED;
+	teapotRotation += ROTATIONSPEED;
+	repaint();
 }
