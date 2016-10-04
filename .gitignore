@@ -11,3 +11,4 @@
 .vs/
 *.tlog/
 Debug/Tmp
+*.db
