@@ -174,6 +174,8 @@ void MeGlWindow::paintGL()
 	glUniform4fv(ambientLightUniformLocation, 1, &ambientLight[0]);
 	GLint lightPositionUniformLocation = glGetUniformLocation(programID, "lightPositionWorld");
 	glUniform3fv(lightPositionUniformLocation, 1, &lightPositionWorld[0]);
+	GLint eyePositionUniformLocation = glGetUniformLocation(programID, "eyePositionWorld");
+	glUniform3fv(eyePositionUniformLocation, 1, &camera.getPosition()[0]);
 
 	float r = 10.0f;
 
@@ -235,7 +237,6 @@ void MeGlWindow::paintGL()
 	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
 		&teapotModelToWorldMatrix[0][0]);
 	glDrawElements(GL_TRIANGLES, teapotNumIndices, GL_UNSIGNED_SHORT, (void*)teapotIndexByteOffset);
-
 }
 
 void MeGlWindow::mouseMoveEvent(QMouseEvent* e)

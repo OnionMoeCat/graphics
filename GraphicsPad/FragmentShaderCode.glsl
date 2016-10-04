@@ -5,6 +5,7 @@ in vec3 normalWorld;
 in vec3 vertexPositionWorld;
 
 uniform vec3 lightPositionWorld;
+uniform vec3 eyePositionWorld;
 uniform vec4 ambientLight;
 
 uniform float k0;
@@ -18,5 +19,11 @@ void main()
 	float diffuseBrightness = clamp(dot(normalize(lightVectorWorld), normalize(normalWorld)) / (k0 + k1 * distance + k2 * distance * distance), 0, 1);
 	vec4 diffuseLight = vec4(diffuseBrightness, diffuseBrightness, diffuseBrightness, 1.0);
 
-	daColor = diffuseLight + ambientLight;
+	vec3 eyeVectorWorld = eyePositionWorld - vertexPositionWorld;
+	vec3 lightVectorReflect = reflect(-eyeVectorWorld, normalWorld);
+	float specularBrightness = clamp(dot(normalize(lightVectorReflect), normalize(eyeVectorWorld)), 0, 1);
+	pow(specularBrightness, 20);
+	vec4 specularLight = vec4(specularBrightness, 0.0, 0.0, 1.0);
+
+	daColor = diffuseLight + ambientLight + specularLight;
 }
