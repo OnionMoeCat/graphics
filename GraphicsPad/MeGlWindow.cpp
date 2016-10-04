@@ -31,6 +31,8 @@ GLuint planeVertexArrayObjectID;
 GLuint cubeIndexByteOffset;
 GLuint planeIndexByteOffset;
 
+glm::vec3 lightPositionWorld(0.0f, 1.0f, 0.0f);
+
 void MeGlWindow::sendDataToOpenGL()
 {
 	ShapeData cube = ShapeGenerator::makeCube();
@@ -96,19 +98,16 @@ void MeGlWindow::paintGL()
 	mat4 worldToProjectionMatrix = viewToProjectionMatrix * worldToViewMatrix;
 
 	GLint ambientLightUniformLocation = glGetUniformLocation(programID, "ambientLight");
-	vec4 ambientLight(0.05f, 0.05f, 0.05f, 1.0f);
+	vec4 ambientLight(0.2f, 0.2f, 0.2f, 1.0f);
 	glUniform4fv(ambientLightUniformLocation, 1, &ambientLight[0]);
 	GLint lightPositionUniformLocation = glGetUniformLocation(programID, "lightPositionWorld");
-	glm::vec3 lightPositionWorld(2.0f, 3.0f, 0.0f);
 	glUniform3fv(lightPositionUniformLocation, 1, &lightPositionWorld[0]);
 
 	GLint modelToWorldMatrixUniformLocation =
 		glGetUniformLocation(programID, "modelToWorldMatrix");
-	// Arrow translated
+	// Cube translated
 	glBindVertexArray(cubeVertexArrayObjectID);
-	mat4 cubeModelToWorldMatrix = 
-		glm::translate(0.0f, 1.0f, -8.0f) *
-		glm::rotate(-90.0f, 1.0f, 0.0f, 0.0f);
+	mat4 cubeModelToWorldMatrix = glm::translate(lightPositionWorld) * glm::scale(vec3(0.1f, 0.1f, 0.1f));
 	modelToProjectionMatrix = worldToProjectionMatrix * cubeModelToWorldMatrix;
 	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
 	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE, 
@@ -133,6 +132,7 @@ void MeGlWindow::mouseMoveEvent(QMouseEvent* e)
 
 void MeGlWindow::keyPressEvent(QKeyEvent* e)
 {
+	const float LIGHTMOVEMENTSPEED = 0.1f;
 	switch (e->key())
 	{
 	case Qt::Key::Key_W:
@@ -152,6 +152,24 @@ void MeGlWindow::keyPressEvent(QKeyEvent* e)
 		break;
 	case Qt::Key::Key_F:
 		camera.moveDown();
+		break;
+	case Qt::Key::Key_Up:
+		lightPositionWorld.z -= LIGHTMOVEMENTSPEED;
+		break;
+	case Qt::Key::Key_Down:
+		lightPositionWorld.z += LIGHTMOVEMENTSPEED;
+		break;
+	case Qt::Key::Key_Left:
+		lightPositionWorld.x -= LIGHTMOVEMENTSPEED;
+		break;
+	case Qt::Key::Key_Right:
+		lightPositionWorld.x += LIGHTMOVEMENTSPEED;
+		break;
+	case Qt::Key::Key_I:
+		lightPositionWorld.y += LIGHTMOVEMENTSPEED;
+		break;
+	case Qt::Key::Key_K:
+		lightPositionWorld.y -= LIGHTMOVEMENTSPEED;
 		break;
 	}
 	repaint();

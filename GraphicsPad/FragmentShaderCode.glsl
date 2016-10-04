@@ -9,8 +9,9 @@ uniform vec4 ambientLight;
 
 void main()
 {
-	vec3 lightVectorWorld = normalize(lightPositionWorld - vertexPositionWorld);
-	float brightness = dot(lightVectorWorld, normalize(normalWorld));
-	vec4 diffuseLight = vec4(brightness, brightness, brightness, 1.0);
-	daColor = clamp(diffuseLight, 0, 1) + ambientLight;
+	vec3 lightVectorWorld = lightPositionWorld - vertexPositionWorld;
+	float diffuseBrightness = clamp(dot(normalize(lightVectorWorld), normalize(normalWorld)), 0, 1);
+	vec4 diffuseLight = vec4(diffuseBrightness, diffuseBrightness, diffuseBrightness, 1.0);
+
+	daColor = diffuseLight + ambientLight;
 }
