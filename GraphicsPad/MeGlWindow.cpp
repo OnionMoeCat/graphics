@@ -16,10 +16,11 @@ using glm::vec4;
 using glm::mat4;
 
 const uint NUM_VERTICES_PER_TRI = 3;
-const uint NUM_FLOATS_PER_VERTICE = 9;
+const uint NUM_FLOATS_PER_VERTICE = 11;
 const uint VERTEX_BYTE_SIZE = NUM_FLOATS_PER_VERTICE * sizeof(float);
 GLuint programID;
 GLuint planeNumIndices;
+GLuint planeNumIndicesHack;
 Camera camera;
 GLuint fullTransformationUniformLocation;
 
@@ -27,6 +28,9 @@ GLuint theBufferID;
 
 GLuint planeVertexArrayObjectID;
 GLuint planeIndexByteOffset;
+
+GLuint planeVertexArrayObjectIDHack;
+GLuint planeIndexByteOffsetHack;
 
 glm::vec3 lightPositionWorld(0.0f, 1.0f, 0.0f);
 
@@ -55,7 +59,36 @@ void MeGlWindow::sendDataToOpenGL()
 		vec2(0.0f, 1.0f)
 	};
 
+	Vertex planeVerticesHack[] =
+	{
+		vec3(-1.0f, 0.0f, -1.0f),
+		vec3(1.0f, 1.0f, 1.0f),
+		vec3(0.0f, 0.0f, 0.0f),
+		vec2(0.0f, 0.0f),
+
+		vec3(1.0f, 0.0f, -1.0f),
+		vec3(1.0f, 1.0f, 1.0f),
+		vec3(0.0f, 0.0f, 0.0f),
+		vec2(1.0f, 0.0f),
+
+		vec3(1.0f, 0.0f, 1.0f),
+		vec3(1.0f, 1.0f, 1.0f),
+		vec3(0.0f, 0.0f, 0.0f),
+		vec2(1.0f, 1.0f),
+
+		vec3(-1.0f, 0.0f, 1.0f),
+		vec3(1.0f, 1.0f, 1.0f),
+		vec3(0.0f, 0.0f, 0.0f),
+		vec2(0.0f, 1.0f)
+	};
+
 	GLushort planeIndices[] =
+	{
+		0, 3, 2,
+		0, 2, 1
+	};
+
+	GLushort planeIndicesHack[] =
 	{
 		0, 3, 2,
 		0, 2, 1
@@ -64,15 +97,22 @@ void MeGlWindow::sendDataToOpenGL()
 	glGenBuffers(1, &theBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, theBufferID);
 	glBufferData(GL_ARRAY_BUFFER, 
-		sizeof(planeVertices) + sizeof(planeIndices), 0, GL_STATIC_DRAW);
+		sizeof(planeVertices) + sizeof(planeIndices) + sizeof(planeVerticesHack) + sizeof(planeIndicesHack), 0, GL_STATIC_DRAW);
 	GLsizeiptr currentOffset = 0;
 	glBufferSubData(GL_ARRAY_BUFFER, currentOffset, sizeof(planeVertices), planeVertices);
 	currentOffset += sizeof(planeVertices);
 	planeIndexByteOffset = currentOffset;
 	glBufferSubData(GL_ARRAY_BUFFER, currentOffset, sizeof(planeIndices), planeIndices);
 	currentOffset += sizeof(planeIndices);
+	glBufferSubData(GL_ARRAY_BUFFER, currentOffset, sizeof(planeVerticesHack), planeVerticesHack);
+	currentOffset += sizeof(planeVerticesHack);
+	planeIndexByteOffsetHack = currentOffset;
+	glBufferSubData(GL_ARRAY_BUFFER, currentOffset, sizeof(planeIndicesHack), planeIndicesHack);
+	currentOffset += sizeof(planeIndicesHack);
+
 
 	planeNumIndices = sizeof(planeIndices) / sizeof(GLushort);
+	planeNumIndicesHack = sizeof(planeIndicesHack) / sizeof(GLushort);
 
 	glGenVertexArrays(1, &planeVertexArrayObjectID);
 
@@ -88,6 +128,22 @@ void MeGlWindow::sendDataToOpenGL()
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffset + sizeof(float) * 6));
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffset + sizeof(float) * 9));
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBufferID);
+
+	glGenVertexArrays(1, &planeVertexArrayObjectIDHack);
+
+	glBindVertexArray(planeVertexArrayObjectIDHack);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+	glBindBuffer(GL_ARRAY_BUFFER, theBufferID);
+	GLuint planeByteOffsetHack = sizeof(planeVertices) + sizeof(planeIndices);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)planeByteOffsetHack);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffsetHack + sizeof(float) * 3));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffsetHack + sizeof(float) * 6));
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffsetHack + sizeof(float) * 9));
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBufferID);
+
 }
 
 void MeGlWindow::paintGL()
@@ -100,9 +156,8 @@ void MeGlWindow::paintGL()
 	mat4 worldToViewMatrix = camera.getWorldToViewMatrix();
 	mat4 worldToProjectionMatrix = viewToProjectionMatrix * worldToViewMatrix;
 
-	GLint ambientLightUniformLocation = glGetUniformLocation(programID, "ambientLight");
-	float ambientLight = 0.2f;
-	glUniform1f(ambientLightUniformLocation, ambientLight);
+	GLint ambientLightUniformLocation = glGetUniformLocation(programID, "ambientBrightness");
+
 	GLint lightPositionUniformLocation = glGetUniformLocation(programID, "lightPositionWorld");
 	glUniform3fv(lightPositionUniformLocation, 1, &lightPositionWorld[0]);
 
@@ -116,7 +171,21 @@ void MeGlWindow::paintGL()
 	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
 	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
 		&planeModelToWorldMatrix[0][0]);
+	float ambientLight = 0.1f;
+	glUniform1f(ambientLightUniformLocation, ambientLight);
 	glDrawElements(GL_TRIANGLES, planeNumIndices, GL_UNSIGNED_SHORT, (void*)planeIndexByteOffset);
+
+	// Plane
+	glBindVertexArray(planeVertexArrayObjectIDHack);
+	mat4 planeModelToWorldMatrixHack = glm::translate(-2.5f, 0.0f, -2.5f);
+	modelToProjectionMatrix = worldToProjectionMatrix * planeModelToWorldMatrixHack;
+	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
+	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
+		&planeModelToWorldMatrixHack[0][0]);
+	ambientLight = 1.0f;
+	glUniform1f(ambientLightUniformLocation, ambientLight);
+	glDrawElements(GL_TRIANGLES, planeNumIndicesHack, GL_UNSIGNED_SHORT, (void*)planeIndexByteOffsetHack);
+
 }
 
 void MeGlWindow::mouseMoveEvent(QMouseEvent* e)

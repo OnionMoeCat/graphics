@@ -13,8 +13,5 @@ void main()
 {
 	vec3 lightVectorWorld = lightPositionWorld - vertexPositionWorld;
 	float diffuseBrightness = clamp(dot(normalize(lightVectorWorld), normalize(normalWorld)), 0, 1);
-	vec4 diffuseLight = vec4(diffuseBrightness, diffuseBrightness, diffuseBrightness, 1);
-	vec4 ambientLight = vec4(ambientBrightness, ambientBrightness, ambientBrightness, 1);
-	//daColor = texture(myTexture, theUV) * (diffuseLight + ambientLight);
-	daColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);
+	daColor = texture(myTexture, theUV) * (ambientBrightness + diffuseBrightness);
 }
