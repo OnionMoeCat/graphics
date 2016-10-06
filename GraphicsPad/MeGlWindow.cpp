@@ -21,6 +21,7 @@ const uint VERTEX_BYTE_SIZE = NUM_FLOATS_PER_VERTICE * sizeof(float);
 GLuint programID;
 GLuint planeNumIndices;
 GLuint planeNumIndicesHack;
+GLuint cubeNumIndices;
 Camera camera;
 GLuint fullTransformationUniformLocation;
 
@@ -31,6 +32,9 @@ GLuint planeIndexByteOffset;
 
 GLuint planeVertexArrayObjectIDHack;
 GLuint planeIndexByteOffsetHack;
+
+GLuint cubeVertexArrayObjectID;
+GLuint cubeIndexByteOffset;
 
 glm::vec3 lightPositionWorld(0.0f, 1.0f, 0.0f);
 
@@ -82,6 +86,138 @@ void MeGlWindow::sendDataToOpenGL()
 		vec2(0.0f, 1.0f)
 	};
 
+	Vertex cubeVertices[] =
+	{
+		vec3(-1.0f, +1.0f, +1.0f),  // 0
+		vec3(+1.0f, +0.0f, +0.0f),	// Color
+		vec3(+0.0f, +1.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+
+		vec3(+1.0f, +1.0f, +1.0f),  // 1
+		vec3(+0.0f, +1.0f, +0.0f),	// Color
+		vec3(+0.0f, +1.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(+1.0f, +1.0f, -1.0f),  // 2
+		vec3(+0.0f, +0.0f, +1.0f),  // Color
+		vec3(+0.0f, +1.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(-1.0f, +1.0f, -1.0f),  // 3
+		vec3(+1.0f, +1.0f, +1.0f),  // Color
+		vec3(+0.0f, +1.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(-1.0f, +1.0f, -1.0f),  // 4
+		vec3(+1.0f, +0.0f, +1.0f),  // Color
+		vec3(+0.0f, +0.0f, -1.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(+1.0f, +1.0f, -1.0f),  // 5
+		vec3(+0.0f, +0.5f, +0.2f),  // Color
+		vec3(+0.0f, +0.0f, -1.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(+1.0f, -1.0f, -1.0f),  // 6
+		vec3(+0.8f, +0.6f, +0.4f),  // Color
+		vec3(+0.0f, +0.0f, -1.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(-1.0f, -1.0f, -1.0f),  // 7
+		vec3(+0.3f, +1.0f, +0.5f),  // Color
+		vec3(+0.0f, +0.0f, -1.0f),  // Normal
+		vec2(0.0f, 0.0f),
+
+		vec3(+1.0f, +1.0f, -1.0f),  // 8
+		vec3(+0.2f, +0.5f, +0.2f),  // Color
+		vec3(+1.0f, +0.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(+1.0f, +1.0f, +1.0f),  // 9
+		vec3(+0.9f, +0.3f, +0.7f),  // Color
+		vec3(+1.0f, +0.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(+1.0f, -1.0f, +1.0f),  // 10
+		vec3(+0.3f, +0.7f, +0.5f),  // Color
+		vec3(+1.0f, +0.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(+1.0f, -1.0f, -1.0f),  // 11
+		vec3(+0.5f, +0.7f, +0.5f),  // Color
+		vec3(+1.0f, +0.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+
+		vec3(-1.0f, +1.0f, +1.0f),  // 12
+		vec3(+0.7f, +0.8f, +0.2f),  // Color
+		vec3(-1.0f, +0.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+
+		vec3(-1.0f, +1.0f, -1.0f),  // 13
+		vec3(+0.5f, +0.7f, +0.3f),  // Color
+		vec3(-1.0f, +0.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(-1.0f, -1.0f, -1.0f),  // 14
+		vec3(+0.4f, +0.7f, +0.7f),  // Color
+		vec3(-1.0f, +0.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(-1.0f, -1.0f, +1.0f),  // 15
+		vec3(+0.2f, +0.5f, +1.0f),  // Color
+		vec3(-1.0f, +0.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+
+		vec3(+1.0f, +1.0f, +1.0f),  // 16
+		vec3(+0.6f, +1.0f, +0.7f),  // Color
+		vec3(+0.0f, +0.0f, +1.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(-1.0f, +1.0f, +1.0f),  // 17
+		vec3(+0.6f, +0.4f, +0.8f),  // Color
+		vec3(+0.0f, +0.0f, +1.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(-1.0f, -1.0f, +1.0f),  // 18
+		vec3(+0.2f, +0.8f, +0.7f),  // Color
+		vec3(+0.0f, +0.0f, +1.0f),  // Normal
+		vec2(0.0f, 0.0f),
+		
+		vec3(+1.0f, -1.0f, +1.0f),  // 19
+		vec3(+0.2f, +0.7f, +1.0f),  // Color
+		vec3(+0.0f, +0.0f, +1.0f),  // Normal
+		vec2(0.0f, 0.0f),
+
+		vec3(+1.0f, -1.0f, -1.0f),  // 20
+		vec3(+0.8f, +0.3f, +0.7f),  // Color
+		vec3(+0.0f, -1.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+
+		vec3(-1.0f, -1.0f, -1.0f),  // 21
+		vec3(+0.8f, +0.9f, +0.5f),  // Color
+		vec3(+0.0f, -1.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+
+		vec3(-1.0f, -1.0f, +1.0f),  // 22
+		vec3(+0.5f, +0.8f, +0.5f),  // Color
+		vec3(+0.0f, -1.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+
+		vec3(+1.0f, -1.0f, +1.0f),  // 23
+		vec3(+0.9f, +1.0f, +0.2f),  // Color
+		vec3(+0.0f, -1.0f, +0.0f),  // Normal
+		vec2(0.0f, 0.0f),
+	};
+
+	GLushort cubeIndices[] = {
+		0,   1,  2,  0,  2,  3, // Top
+		4,   5,  6,  4,  6,  7, // Front
+		8,   9, 10,  8, 10, 11, // Right
+		12, 13, 14, 12, 14, 15, // Left
+		16, 17, 18, 16, 18, 19, // Back
+		20, 22, 21, 20, 23, 22, // Bottom
+	};
+
 	GLushort planeIndices[] =
 	{
 		0, 3, 2,
@@ -97,7 +233,7 @@ void MeGlWindow::sendDataToOpenGL()
 	glGenBuffers(1, &theBufferID);
 	glBindBuffer(GL_ARRAY_BUFFER, theBufferID);
 	glBufferData(GL_ARRAY_BUFFER, 
-		sizeof(planeVertices) + sizeof(planeIndices) + sizeof(planeVerticesHack) + sizeof(planeIndicesHack), 0, GL_STATIC_DRAW);
+		sizeof(planeVertices) + sizeof(planeIndices) + sizeof(planeVerticesHack) + sizeof(planeIndicesHack) + sizeof(cubeVertices) + sizeof(cubeIndices), 0, GL_STATIC_DRAW);
 	GLsizeiptr currentOffset = 0;
 	glBufferSubData(GL_ARRAY_BUFFER, currentOffset, sizeof(planeVertices), planeVertices);
 	currentOffset += sizeof(planeVertices);
@@ -109,10 +245,16 @@ void MeGlWindow::sendDataToOpenGL()
 	planeIndexByteOffsetHack = currentOffset;
 	glBufferSubData(GL_ARRAY_BUFFER, currentOffset, sizeof(planeIndicesHack), planeIndicesHack);
 	currentOffset += sizeof(planeIndicesHack);
+	glBufferSubData(GL_ARRAY_BUFFER, currentOffset, sizeof(cubeVertices), cubeVertices);
+	currentOffset += sizeof(cubeVertices);
+	cubeIndexByteOffset = currentOffset;
+	glBufferSubData(GL_ARRAY_BUFFER, currentOffset, sizeof(cubeIndices), cubeIndices);
+	currentOffset += sizeof(cubeIndices);
 
 
 	planeNumIndices = sizeof(planeIndices) / sizeof(GLushort);
 	planeNumIndicesHack = sizeof(planeIndicesHack) / sizeof(GLushort);
+	cubeNumIndices = sizeof(cubeIndices) / sizeof(GLushort);
 
 	glGenVertexArrays(1, &planeVertexArrayObjectID);
 
@@ -142,6 +284,21 @@ void MeGlWindow::sendDataToOpenGL()
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffsetHack + sizeof(float) * 3));
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffsetHack + sizeof(float) * 6));
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffsetHack + sizeof(float) * 9));
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBufferID);
+
+	glGenVertexArrays(1, &cubeVertexArrayObjectID);
+
+	glBindVertexArray(cubeVertexArrayObjectID);
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+	glEnableVertexAttribArray(2);
+	glEnableVertexAttribArray(3);
+	glBindBuffer(GL_ARRAY_BUFFER, theBufferID);
+	GLuint cubeByteOffset = planeByteOffsetHack + sizeof(planeVerticesHack) + sizeof(planeIndicesHack);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)cubeByteOffset);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(cubeByteOffset + sizeof(float) * 3));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(cubeByteOffset + sizeof(float) * 6));
+	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(cubeByteOffset + sizeof(float) * 9));
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBufferID);
 
 }
@@ -185,6 +342,17 @@ void MeGlWindow::paintGL()
 	ambientLight = 1.0f;
 	glUniform1f(ambientLightUniformLocation, ambientLight);
 	glDrawElements(GL_TRIANGLES, planeNumIndicesHack, GL_UNSIGNED_SHORT, (void*)planeIndexByteOffsetHack);
+
+	// Cube
+	glBindVertexArray(cubeVertexArrayObjectID);
+	mat4 cubeModelToWorldMatrix = glm::translate(lightPositionWorld) * glm::scale(0.1f, 0.1f, 0.1f);
+	modelToProjectionMatrix = worldToProjectionMatrix * cubeModelToWorldMatrix;
+	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
+	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
+		&cubeModelToWorldMatrix[0][0]);
+	ambientLight = 1.0f;
+	glUniform1f(ambientLightUniformLocation, ambientLight);
+	glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_SHORT, (void*)cubeIndexByteOffset);
 
 }
 
