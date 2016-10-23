@@ -7,6 +7,7 @@ in layout(location=3) vec2 uv;
 
 uniform mat4 modelToProjectionMatrix;
 uniform mat4 modelToWorldMatrix;
+uniform mat4 modelToWorldInvertTrans;
 
 out vec3 normalWorld;
 out vec3 vertexPositionWorld;
@@ -15,7 +16,7 @@ out vec2 theUV;
 void main()
 {
 	gl_Position = modelToProjectionMatrix * vec4(vertexPositionModel, 1);
-	normalWorld = vec3(modelToWorldMatrix * vec4(normalModel, 0));
+	normalWorld = vec3(modelToWorldInvertTrans * vec4(normalModel, 0));
 	vertexPositionWorld = vec3(modelToWorldMatrix * vec4(vertexPositionModel, 1));
 	theUV = uv;
 }

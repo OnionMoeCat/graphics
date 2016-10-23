@@ -35,6 +35,9 @@ glm::vec3 cube2PositionWorld(-2.0f, 2.0f, -2.0f);
 
 glm::vec3 lightPositionWorld(0.0f, 4.0f, 0.0f);
 
+GLuint onionmoecatTextureObjectId;
+GLuint defaultTextureObjectId;
+
 void MeGlWindow::sendDataToOpenGL()
 {
 	ShapeData cube = ShapeGenerator::makeCube();
@@ -81,6 +84,10 @@ void MeGlWindow::paintGL()
 
 	glUseProgram(programID);
 
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_2D, onionmoecatTextureObjectId);
+
 	GLint myTextureLocation = glGetUniformLocation(programID, "myTexture");
 	if (myTextureLocation > 0) {
 		glUniform1i(myTextureLocation, 0);
@@ -110,31 +117,49 @@ void MeGlWindow::paintGL()
 
 	GLint modelToWorldMatrixUniformLocation =
 		glGetUniformLocation(programID, "modelToWorldMatrix");
+	GLint modelToWorldInvertTransUniformLocation =
+		glGetUniformLocation(programID, "modelToWorldInvertTrans");
 
 	GLint fullTransformationUniformLocation = glGetUniformLocation(programID, "modelToProjectionMatrix");
 
 	// Cube
 	glBindVertexArray(cubeVertexArrayObjectID);
 	mat4 cubeModelToWorldMatrix = glm::translate(cube1PositionWorld);
+	mat4 cubeModelToWorldInverseTrans = glm::inverse(glm::transpose(cubeModelToWorldMatrix));
 	modelToProjectionMatrix = worldToProjectionMatrix * cubeModelToWorldMatrix;
 	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
 	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
 		&cubeModelToWorldMatrix[0][0]);
+	glUniformMatrix4fv(modelToWorldInvertTransUniformLocation, 1, GL_FALSE,
+		&cubeModelToWorldInverseTrans[0][0]);
 	float ambientLight = 0.1f;
 	glUniform1f(ambientLightUniformLocation, ambientLight);
 	glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_SHORT, (void*)cubeIndexByteOffset);
 
+	glBindTexture(GL_TEXTURE_2D, defaultTextureObjectId);
+
+	if (myTextureLocation > 0) {
+		glUniform1i(myTextureLocation, 0);
+	}
+
 	glBindVertexArray(cubeVertexArrayObjectID);
 	cubeModelToWorldMatrix = glm::scale(15.0f, 0.01f, 15.0f);
+	cubeModelToWorldInverseTrans = glm::inverse(glm::transpose(cubeModelToWorldMatrix));
 	modelToProjectionMatrix = worldToProjectionMatrix * cubeModelToWorldMatrix;
 	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
 	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
 		&cubeModelToWorldMatrix[0][0]);
+	glUniformMatrix4fv(modelToWorldInvertTransUniformLocation, 1, GL_FALSE,
+		&cubeModelToWorldInverseTrans[0][0]);
 	ambientLight = 0.1f;
 	glUniform1f(ambientLightUniformLocation, ambientLight);
 	glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_SHORT, (void*)cubeIndexByteOffset);
 
 	glUseProgram(programWithoutLightID);
+
+	glActiveTexture(GL_TEXTURE0);
+
+	glBindTexture(GL_TEXTURE_2D, defaultTextureObjectId);
 
 	GLint myTextureLocationWithoutLight = glGetUniformLocation(programWithoutLightID, "myTexture");
 	if (myTextureLocationWithoutLight > 0) {
@@ -153,6 +178,11 @@ void MeGlWindow::paintGL()
 		&cubeModelToWorldMatrix[0][0]);
 	glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_SHORT, (void*)cubeIndexByteOffset);
 	
+	glBindTexture(GL_TEXTURE_2D, onionmoecatTextureObjectId);
+
+	if (myTextureLocationWithoutLight > 0) {
+		glUniform1i(myTextureLocationWithoutLight, 0);
+	}
 
 	//glUseProgram(programWithoutLightID);
 	glBindVertexArray(cubeVertexArrayObjectID);
@@ -314,16 +344,30 @@ void MeGlWindow::initializeTextures() {
 		return;
 	}
 	QImage timg = QGLWidget::convertToGLFormat(temp);
-	glActiveTexture(GL_TEXTURE0);
 
-	GLuint myTextureObjectId;
-	glGenTextures(1, &myTextureObjectId);
-	glBindTexture(GL_TEXTURE_2D, myTextureObjectId);
+	glGenTextures(1, &onionmoecatTextureObjectId);
+	glBindTexture(GL_TEXTURE_2D, onionmoecatTextureObjectId);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, timg.width(), timg.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, timg.bits());
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	
+	texName = "default.png";
+	temp = QImage(texName, "PNG");
+	if (temp.isNull()) {
+		return;
+	}
+	timg = QGLWidget::convertToGLFormat(temp);
+
+	glGenTextures(1, &defaultTextureObjectId);
+	glBindTexture(GL_TEXTURE_2D, defaultTextureObjectId);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, timg.width(), timg.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, timg.bits());
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
+	if (glGetError() != GL_NO_ERROR)
+		return;
 }
 
 void MeGlWindow::initializeGL()
