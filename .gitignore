@@ -10,5 +10,5 @@
 *.idb
 .vs/
 *.tlog/
-Debug/Tmp
+GraphicsPad/Debug/Tmp
 *.db
