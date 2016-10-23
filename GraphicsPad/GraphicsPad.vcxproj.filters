@@ -14,7 +14,6 @@
     <ClInclude Include="Primitives\ShapeData.h" />
     <ClInclude Include="Primitives\ShapeGenerator.h" />
     <ClInclude Include="Camera.h" />
-    <ClInclude Include="Primitives\TeapotData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="VertexShaderCode.glsl" />

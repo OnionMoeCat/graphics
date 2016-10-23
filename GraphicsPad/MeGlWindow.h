@@ -19,6 +19,7 @@ class MeGlWindow : public QGLWidget
 	std::string readShaderCode(const char* fileName);
 	void installShaders();
 	QTimer* qTimer;
+	void initializeTextures();
 protected:
 	void initializeGL();
 	void paintGL();
