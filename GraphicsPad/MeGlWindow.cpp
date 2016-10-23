@@ -30,9 +30,10 @@ GLuint theBufferID;
 GLuint cubeVertexArrayObjectID;
 GLuint cubeIndexByteOffset;
 
-glm::vec3 cube2PositionWorld(-2.0f, 0.0f, -2.0f);
+glm::vec3 cube1PositionWorld(0.0f, 2.0f, 0.0f);
+glm::vec3 cube2PositionWorld(-2.0f, 2.0f, -2.0f);
 
-glm::vec3 lightPositionWorld(0.0f, 3.0f, 0.0f);
+glm::vec3 lightPositionWorld(0.0f, 4.0f, 0.0f);
 
 void MeGlWindow::sendDataToOpenGL()
 {
@@ -90,6 +91,23 @@ void MeGlWindow::paintGL()
 	GLint lightPositionUniformLocation = glGetUniformLocation(programID, "lightPositionWorld");
 	glUniform3fv(lightPositionUniformLocation, 1, &lightPositionWorld[0]);
 
+	GLint eyePositionUniformLocation = glGetUniformLocation(programID, "eyePositionWorld");
+	glUniform3fv(eyePositionUniformLocation, 1, &camera.getPosition()[0]);
+
+	float r = 10.0f;
+
+	GLint k0UniformLocation = glGetUniformLocation(programID, "k0");
+	float k0 = 1.0f;
+	glUniform1f(k0UniformLocation, k0);
+
+	GLint k1UniformLocation = glGetUniformLocation(programID, "k1");
+	float k1 = 2 / r;
+	glUniform1f(k1UniformLocation, k1);
+
+	GLint k2UniformLocation = glGetUniformLocation(programID, "k2");
+	float k2 = 1 / r / r;
+	glUniform1f(k2UniformLocation, k2);
+
 	GLint modelToWorldMatrixUniformLocation =
 		glGetUniformLocation(programID, "modelToWorldMatrix");
 
@@ -97,12 +115,22 @@ void MeGlWindow::paintGL()
 
 	// Cube
 	glBindVertexArray(cubeVertexArrayObjectID);
-	mat4 cubeModelToWorldMatrix;
+	mat4 cubeModelToWorldMatrix = glm::translate(cube1PositionWorld);
 	modelToProjectionMatrix = worldToProjectionMatrix * cubeModelToWorldMatrix;
 	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
 	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
 		&cubeModelToWorldMatrix[0][0]);
-	float ambientLight = 1.0f;
+	float ambientLight = 0.1f;
+	glUniform1f(ambientLightUniformLocation, ambientLight);
+	glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_SHORT, (void*)cubeIndexByteOffset);
+
+	glBindVertexArray(cubeVertexArrayObjectID);
+	cubeModelToWorldMatrix = glm::scale(15.0f, 0.01f, 15.0f);
+	modelToProjectionMatrix = worldToProjectionMatrix * cubeModelToWorldMatrix;
+	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
+	glUniformMatrix4fv(modelToWorldMatrixUniformLocation, 1, GL_FALSE,
+		&cubeModelToWorldMatrix[0][0]);
+	ambientLight = 0.1f;
 	glUniform1f(ambientLightUniformLocation, ambientLight);
 	glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_SHORT, (void*)cubeIndexByteOffset);
 
