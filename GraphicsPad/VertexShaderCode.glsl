@@ -20,9 +20,9 @@ void main()
 	vertexPositionWorld = vec3(modelToWorldMatrix * vec4(vertexPositionModel, 1));
 	theUV = uv;
 
-	vec3 normalWorld = vec3(modelToWorldInvertTrans * vec4(normalModel, 0));
-	vec3 tangentWorld = vec3(modelToWorldMatrix * vec4(tangent, 0));
-	vec3 bitangentWorld = cross(tangentWorld, normalWorld);
+	vec3 normalWorld = normalize(vec3(modelToWorldInvertTrans * vec4(normalModel, 0)));
+	vec3 tangentWorld = normalize(vec3(modelToWorldMatrix * vec4(tangent, 0)));
+	vec3 bitangentWorld = cross(normalWorld, tangentWorld);
 
 	TBN = mat3(tangentWorld, bitangentWorld, normalWorld);
 }

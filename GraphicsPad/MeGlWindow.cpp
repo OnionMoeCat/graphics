@@ -31,10 +31,10 @@ GLuint theBufferID;
 GLuint cubeVertexArrayObjectID;
 GLuint cubeIndexByteOffset;
 
-glm::vec3 cube1PositionWorld(0.0f, 2.0f, 0.0f);
+glm::vec3 cube1PositionWorld(0.0f, 4.0f, 0.0f);
 glm::vec3 cube2PositionWorld(-2.0f, 2.0f, -2.0f);
 
-glm::vec3 lightPositionWorld(0.0f, 4.0f, 0.0f);
+glm::vec3 lightPositionWorld(0.0f, 6.0f, 0.0f);
 
 glm::vec3 cubeRotation(0.0f, 0.0f, 0.0f);
 
@@ -99,7 +99,7 @@ void MeGlWindow::paintGL()
 	glUseProgram(programID);
 
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, onionmoecatTextureObjectId);
+	glBindTexture(GL_TEXTURE_2D, defaultTextureObjectId);
 
 	GLint myTextureLocation = glGetUniformLocation(programID, "myTexture");
 	if (myTextureLocation > 0) {
@@ -405,7 +405,7 @@ void MeGlWindow::update() {
 	float deltaTime = currentTime - elapsedTime;
 	elapsedTime = currentTime;
 	const glm::vec3 ROTATIONSPEED = glm::vec3(0.02f, 0.05f, 0.0f);
-	cubeRotation += ROTATIONSPEED * deltaTime;
+	//cubeRotation += ROTATIONSPEED * deltaTime;
 	repaint();
 }
 
