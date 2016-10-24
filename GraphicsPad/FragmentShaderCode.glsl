@@ -1,14 +1,15 @@
 #version 430
 
 out vec4 daColor;
-in vec3 normalWorld;
 in vec3 vertexPositionWorld;
 in vec2 theUV;
+in mat3 TBN;
 
 uniform vec3 eyePositionWorld;
 uniform vec3 lightPositionWorld;
 uniform float ambientBrightness;
 uniform sampler2D myTexture;
+uniform sampler2D normalMap;
 
 uniform float k0;
 uniform float k1;
@@ -16,6 +17,10 @@ uniform float k2;
 
 void main()
 {
+	vec3 normalWorld = texture(normalMap, theUV).rgb;
+	normalWorld = normalize(normalWorld * 2.0 - 1.0);
+	normalWorld = normalize(TBN * normalWorld);
+	
 	vec4 ambientLight = vec4(0.0, 0.0, ambientBrightness, 1.0);
 	
 	vec3 lightVectorWorld = lightPositionWorld - vertexPositionWorld;

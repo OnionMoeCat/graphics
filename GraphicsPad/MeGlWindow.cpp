@@ -37,6 +37,11 @@ glm::vec3 lightPositionWorld(0.0f, 4.0f, 0.0f);
 
 GLuint onionmoecatTextureObjectId;
 GLuint defaultTextureObjectId;
+GLuint shapesTextureObjectId;
+
+namespace {
+	void generateTexture(const char* str, const char* ext, GLuint& id);
+}
 
 void MeGlWindow::sendDataToOpenGL()
 {
@@ -62,14 +67,18 @@ void MeGlWindow::sendDataToOpenGL()
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	glEnableVertexAttribArray(3);
+	glEnableVertexAttribArray(4);
 	glBindBuffer(GL_ARRAY_BUFFER, theBufferID);
 	GLuint planeByteOffset = 0;
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)planeByteOffset);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffset + sizeof(float) * 3));
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffset + sizeof(float) * 6));
 	glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffset + sizeof(float) * 9));
+	glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, VERTEX_BYTE_SIZE, (void*)(planeByteOffset + sizeof(float) * 11));
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, theBufferID);
-
+	
+	if (glGetError() != GL_NO_ERROR)
+		return;
 }
 
 void MeGlWindow::paintGL()
@@ -85,12 +94,19 @@ void MeGlWindow::paintGL()
 	glUseProgram(programID);
 
 	glActiveTexture(GL_TEXTURE0);
-
 	glBindTexture(GL_TEXTURE_2D, onionmoecatTextureObjectId);
 
 	GLint myTextureLocation = glGetUniformLocation(programID, "myTexture");
 	if (myTextureLocation > 0) {
 		glUniform1i(myTextureLocation, 0);
+	}
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, shapesTextureObjectId);
+
+	GLint normalMapLocation = glGetUniformLocation(programID, "normalMap");
+	if (normalMapLocation > 0) {
+		glUniform1i(normalMapLocation, 1);
 	}
 
 	GLint ambientLightUniformLocation = glGetUniformLocation(programID, "ambientBrightness");
@@ -136,10 +152,18 @@ void MeGlWindow::paintGL()
 	glUniform1f(ambientLightUniformLocation, ambientLight);
 	glDrawElements(GL_TRIANGLES, cubeNumIndices, GL_UNSIGNED_SHORT, (void*)cubeIndexByteOffset);
 
+	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, defaultTextureObjectId);
 
 	if (myTextureLocation > 0) {
 		glUniform1i(myTextureLocation, 0);
+	}
+
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, shapesTextureObjectId);
+
+	if (normalMapLocation > 0) {
+		glUniform1i(normalMapLocation, 1);
 	}
 
 	glBindVertexArray(cubeVertexArrayObjectID);
@@ -165,6 +189,7 @@ void MeGlWindow::paintGL()
 	if (myTextureLocationWithoutLight > 0) {
 		glUniform1i(myTextureLocationWithoutLight, 0);
 	}
+
 
 	GLint modelToWorldMatrixUniformLocationWithoutLight =
 		glGetUniformLocation(programWithoutLightID, "modelToWorldMatrix");
@@ -338,36 +363,9 @@ void MeGlWindow::installShaders()
 }
 
 void MeGlWindow::initializeTextures() {
-	const char* texName = "onionmoecat.png";
-	QImage temp = QImage(texName, "PNG");
-	if (temp.isNull()) {
-		return;
-	}
-	QImage timg = QGLWidget::convertToGLFormat(temp);
-
-	glGenTextures(1, &onionmoecatTextureObjectId);
-	glBindTexture(GL_TEXTURE_2D, onionmoecatTextureObjectId);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, timg.width(), timg.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, timg.bits());
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	
-	texName = "default.png";
-	temp = QImage(texName, "PNG");
-	if (temp.isNull()) {
-		return;
-	}
-	timg = QGLWidget::convertToGLFormat(temp);
-
-	glGenTextures(1, &defaultTextureObjectId);
-	glBindTexture(GL_TEXTURE_2D, defaultTextureObjectId);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, timg.width(), timg.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, timg.bits());
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-	if (glGetError() != GL_NO_ERROR)
-		return;
+	generateTexture("onionmoecat.png", "PNG", onionmoecatTextureObjectId);
+	generateTexture("default.png", "PNG", defaultTextureObjectId);
+	generateTexture("Shapes.png", "PNG", shapesTextureObjectId);
 }
 
 void MeGlWindow::initializeGL()
@@ -386,4 +384,24 @@ MeGlWindow::~MeGlWindow()
 	glDeleteBuffers(1, &theBufferID);
 	glUseProgram(0);
 	glDeleteProgram(programID);
+}
+
+namespace {
+	void generateTexture(const char* str, const char* ext, GLuint& id) {
+		QImage temp = QImage(str, ext);
+		if (temp.isNull()) {
+			return;
+		}
+		QImage timg = QGLWidget::convertToGLFormat(temp);
+
+		glGenTextures(1, &id);
+		glBindTexture(GL_TEXTURE_2D, id);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, timg.width(), timg.height(), 0, GL_RGBA, GL_UNSIGNED_BYTE, timg.bits());
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+		if (glGetError() != GL_NO_ERROR)
+			return;
+	}
 }
