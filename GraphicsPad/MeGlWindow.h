@@ -3,9 +3,11 @@
 #include <gl\glew.h>
 #include <QtOpenGL\qglwidget>
 #include <string>
+#include <Qt\qtimer.h>
 
 class MeGlWindow : public QGLWidget
 {
+	Q_OBJECT
 	void sendDataToOpenGL();
 	bool checkShaderStatus(GLuint shaderID);
 	bool checkProgramStatus(GLuint programID);
@@ -17,6 +19,7 @@ class MeGlWindow : public QGLWidget
 	std::string readShaderCode(const char* fileName);
 	void installShaders();
 	void initializeTextures();
+	QTimer* qTimer;
 protected:
 	void initializeGL();
 	void paintGL();
@@ -24,6 +27,9 @@ protected:
 	void keyPressEvent(QKeyEvent*);
 public:
 	~MeGlWindow();
+	MeGlWindow();
+private slots:
+	void update();
 };
 
 #endif

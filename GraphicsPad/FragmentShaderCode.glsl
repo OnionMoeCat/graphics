@@ -34,5 +34,5 @@ void main()
 	pow(specularBrightness, 100);
 	vec4 specularLight = vec4(specularBrightness, 0.0, 0.0, 1.0);
 
-	daColor = texture(myTexture, theUV) * (ambientLight + diffuseLight + specularLight);
+	daColor = texture(myTexture, theUV) * clamp(ambientLight + diffuseLight + specularLight, vec4(0.0, 0.0, 0.0, 1.0), vec4(1.0, 1.0, 1.0, 1.0));
 }

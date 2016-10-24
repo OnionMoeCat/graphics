@@ -1,6 +1,7 @@
 #include <gl\glew.h>
 #include <iostream>
 #include <fstream>
+#include <Qt\qelapsedtimer.h>
 #include <QtGui\qmouseevent>
 #include <QtGui\qkeyevent>
 #include <MeGlWindow.h>
@@ -35,12 +36,16 @@ glm::vec3 cube2PositionWorld(-2.0f, 2.0f, -2.0f);
 
 glm::vec3 lightPositionWorld(0.0f, 4.0f, 0.0f);
 
+glm::vec3 cubeRotation(0.0f, 0.0f, 0.0f);
+
 GLuint onionmoecatTextureObjectId;
 GLuint defaultTextureObjectId;
 GLuint shapesTextureObjectId;
 
 namespace {
 	void generateTexture(const char* str, const char* ext, GLuint& id);
+	QElapsedTimer elapsedTimer;
+	float elapsedTime = 0.0f;
 }
 
 void MeGlWindow::sendDataToOpenGL()
@@ -140,7 +145,7 @@ void MeGlWindow::paintGL()
 
 	// Cube
 	glBindVertexArray(cubeVertexArrayObjectID);
-	mat4 cubeModelToWorldMatrix = glm::translate(cube1PositionWorld);
+	mat4 cubeModelToWorldMatrix = glm::translate(cube1PositionWorld) * glm::rotate(cubeRotation.x, 1.0f, 0.0f, 0.0f) * glm::rotate(cubeRotation.y, 0.0f, 1.0f, 0.0f) * glm::rotate(cubeRotation.z, 0.0f, 0.0f, 1.0f);
 	mat4 cubeModelToWorldInverseTrans = glm::inverse(glm::transpose(cubeModelToWorldMatrix));
 	modelToProjectionMatrix = worldToProjectionMatrix * cubeModelToWorldMatrix;
 	glUniformMatrix4fv(fullTransformationUniformLocation, 1, GL_FALSE, &modelToProjectionMatrix[0][0]);
@@ -379,11 +384,29 @@ void MeGlWindow::initializeGL()
 	initializeTextures();
 }
 
+MeGlWindow::MeGlWindow()
+{
+	qTimer = new QTimer(this);
+	connect(qTimer, SIGNAL(timeout()), this, SLOT(update()));
+	qTimer->start(0);
+	elapsedTimer.start();
+}
+
 MeGlWindow::~MeGlWindow()
 {
+	delete qTimer;
 	glDeleteBuffers(1, &theBufferID);
 	glUseProgram(0);
 	glDeleteProgram(programID);
+}
+
+void MeGlWindow::update() {
+	float currentTime = elapsedTimer.elapsed();
+	float deltaTime = currentTime - elapsedTime;
+	elapsedTime = currentTime;
+	const glm::vec3 ROTATIONSPEED = glm::vec3(0.02f, 0.05f, 0.0f);
+	cubeRotation += ROTATIONSPEED * deltaTime;
+	repaint();
 }
 
 namespace {
