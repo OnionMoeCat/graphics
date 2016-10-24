@@ -26,7 +26,7 @@ void main()
 	vec3 eyeVectorWorld = eyePositionWorld - vertexPositionWorld;
 	vec3 lightVectorReflect = reflect(-lightVectorWorld, normalize(normalWorld));
 	float specularBrightness = clamp(dot(normalize(lightVectorReflect), normalize(eyeVectorWorld)), 0, 1);
-	pow(specularBrightness, 50);
+	pow(specularBrightness, 100);
 	vec4 specularLight = vec4(specularBrightness, 0.0, 0.0, 1.0);
 
 	daColor = texture(myTexture, theUV) * (ambientLight + diffuseLight + specularLight);
