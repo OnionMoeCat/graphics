@@ -55,19 +55,19 @@ ShapeData ShapeGenerator::makeCube() {
 		vec3(-1.0f, +1.0f, -1.0f), // 4
 		vec3(+1.0f, +0.0f, +1.0f), // Color
 		vec3(+0.0f, +0.0f, -1.0f), // Normal
-		vec2(0.0f, 1.0f),
+		vec2(1.0f, 1.0f),
 		vec3(+1.0f, +1.0f, -1.0f), // 5
 		vec3(+0.0f, +0.5f, +0.2f), // Color
 		vec3(+0.0f, +0.0f, -1.0f), // Normal
-		vec2(1.0f, 1.0f),
+		vec2(0.0f, 1.0f),
 		vec3(+1.0f, -1.0f, -1.0f), // 6
 		vec3(+0.8f, +0.6f, +0.4f), // Color
 		vec3(+0.0f, +0.0f, -1.0f), // Normal
-		vec2(1.0f, 0.0f),
+		vec2(0.0f, 0.0f),
 		vec3(-1.0f, -1.0f, -1.0f), // 7
 		vec3(+0.3f, +1.0f, +0.5f), // Color
 		vec3(+0.0f, +0.0f, -1.0f), // Normal
-		vec2(0.0f, 0.0f),
+		vec2(1.0f, 0.0f),
 
 		vec3(+1.0f, +1.0f, -1.0f), // 8
 		vec3(+0.2f, +0.5f, +0.2f), // Color

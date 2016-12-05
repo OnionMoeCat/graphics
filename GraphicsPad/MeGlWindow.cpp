@@ -36,7 +36,7 @@ glm::vec3 cube2PositionWorld(-2.0f, 2.0f, -2.0f);
 
 glm::vec3 lightPositionWorld(0.0f, 6.0f, 0.0f);
 
-glm::vec3 cubeRotation(0.0f, 0.0f, 0.0f);
+glm::vec3 cubeRotation(12.0f, 20.0f, 6.0f);
 
 GLuint onionmoecatTextureObjectId;
 GLuint defaultTextureObjectId;
